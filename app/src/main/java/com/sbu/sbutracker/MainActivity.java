@@ -1,6 +1,7 @@
 package com.sbu.sbutracker;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -17,9 +18,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import java.security.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +38,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        startService(new Intent(this, GPSService.class));
-
+        Intent serviceIntent = new Intent(this, GPSService.class);
+        startService(serviceIntent);
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -73,6 +84,37 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //displaying the latest gps on the app
+        Thread t = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    int i = 500; //update 500 times
+                    while (!isInterrupted() && i>0) {
+                        i++;
+                        Thread.sleep(5000);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                final TextView helloTextView = findViewById(R.id.text_view_id);
+                                FeedReaderDbHelper obj=new FeedReaderDbHelper(getApplicationContext());
+                                DataTable location =  obj.getLatestRecord();
+                                if(location != null) {
+                                    Date date =  new Date(location.getTimestamp());
+                                    String data = "Time: " + date.toString() + "Longitude: " + location.getLongitude() + "Latitude: " + location.getLattitude();
+                                    helloTextView.setText(data);
+                                }
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+        };
+
+        t.start();
     }
 
     @Override

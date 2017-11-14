@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.util.Date;
+
 /**
  * Created by Sachin on 01-Nov-17.
  */
@@ -32,8 +34,14 @@ public class GPSService extends Service{
         @Override
         public void onLocationChanged(Location location)
         {
-            Log.e(TAG, "onLocationChanged: " + location);
+            Log.e(TAG, "onLocationChanged: " + location.getLongitude() + location.getLatitude());
             mLastLocation.set(location);
+            DataTable record= new DataTable();
+            record.setLongitude(location.getLongitude());
+            record.setLattitude(location.getLatitude());
+            record.setTimestamp(System.currentTimeMillis());
+            FeedReaderDbHelper obj=new FeedReaderDbHelper(getApplicationContext());
+            obj.insert(record);
         }
 
         @Override

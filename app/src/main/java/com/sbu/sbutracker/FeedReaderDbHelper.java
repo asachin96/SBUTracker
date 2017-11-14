@@ -16,13 +16,14 @@ import java.util.List;
 
 public class FeedReaderDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "GPS.db";
 
     //
     public static final String TABLE_NAME = "GPS_DATA";
     public static final String COLUMN_NAME_LONGITUDE = "longitude";
     public static final String COLUMN_NAME_LATTITUDE = "lattitude";
+    public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
     //
 
     public FeedReaderDbHelper(Context context){
@@ -33,7 +34,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db){
         String CREATE_TABLE="CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ( " + COLUMN_NAME_LONGITUDE +
-                " text not null, " +  COLUMN_NAME_LATTITUDE + " text not null);";
+                " text not null, " +  COLUMN_NAME_LATTITUDE + " text not null, " + COLUMN_NAME_TIMESTAMP + " text not null);";
         db.execSQL(CREATE_TABLE);
     }
 
@@ -48,13 +49,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         ContentValues values=new ContentValues();
         values.put(COLUMN_NAME_LONGITUDE,record.getLongitude());
         values.put(COLUMN_NAME_LATTITUDE,record.getLattitude());
+        values.put(COLUMN_NAME_TIMESTAMP,record.getTimestamp());
 
         db.insert(TABLE_NAME,null,values);
-//        Log.e("Sumukh", "Entries are : " + record.getLattitude()  record.getLattitude());
-        List<DataTable> list = getAllrecords();
-        for(DataTable dataTable : list) {
-            Log.d("Sumukh", "Entries are : " + dataTable.getLongitude() + "  " +   dataTable.getLattitude());
-        }
         db.close();
     }
 
@@ -72,7 +69,23 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 dl.add(temp);
             }while (cursor.moveToNext());
         }
+        db.close();
         return dl;
+    }
+
+    public DataTable getLatestRecord(){
+        SQLiteDatabase db=this.getReadableDatabase();
+        String SELECT_QUERY="SELECT * FROM "+ TABLE_NAME + " order by " + COLUMN_NAME_TIMESTAMP + " desc";
+        Cursor cursor = db.rawQuery(SELECT_QUERY,null);
+        DataTable data = null;
+        if(cursor.moveToFirst()) {
+            data = new DataTable();
+            data.setLongitude(cursor.getDouble(0));
+            data.setLattitude(cursor.getDouble(1));
+            data.setTimestamp(cursor.getLong(2));
+        }
+        db.close();
+        return data;
     }
 
     /*public DataTable getrecord(int id){

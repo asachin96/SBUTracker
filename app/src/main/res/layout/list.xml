@@ -1,0 +1,116 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <!-- A CardView that contains a TextView -->
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_margin="5dp"
+        android:clickable="true"
+        android:background="?android:selectableItemBackground"
+        card_view:cardCornerRadius="5dp"
+        card_view:cardElevation="3dp"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/activityThumbnail"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/running" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/activityType"
+                        android:layout_width="150dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="top"
+                        android:text="Running"
+                        android:textSize="25sp" />
+
+                    <TextView
+                        android:id="@+id/activityStartTime"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="center_horizontal"
+                        android:text="Nov 3 at 18:00"
+                        android:textSize="15sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="180dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/activityDuration"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="left"
+                        android:text="Time: 10 min"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/activityDistance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="left"
+                        android:text="Distance: 10.92 Km"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/activityPace"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="right"
+                    android:text="Pace: 100.00 kmph"
+                    android:textSize="20sp" />
+            </LinearLayout>
+            <!--<TextView-->
+                <!--android:id="@+id/moreinfo"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:clickable="true"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_marginTop="20dp"-->
+                <!--android:fontFamily="sans-serif-medium"-->
+                <!--android:gravity="right"-->
+                <!--android:text="more info->"-->
+                <!--android:textSize="15sp" />-->
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+</LinearLayout>

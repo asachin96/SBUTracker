@@ -12,17 +12,18 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class FeedReaderDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "GPS.db";
 
     //
     public static final String TABLE_NAME = "GPS_DATA";
     public static final String COLUMN_NAME_LONGITUDE = "longitude";
-    public static final String COLUMN_NAME_LATTITUDE = "lattitude";
+    public static final String COLUMN_NAME_LATITUDE = "latitude";
     public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
     //
 
@@ -34,7 +35,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db){
         String CREATE_TABLE="CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ( " + COLUMN_NAME_LONGITUDE +
-                " text not null, " +  COLUMN_NAME_LATTITUDE + " text not null, " + COLUMN_NAME_TIMESTAMP + " text not null);";
+                " text not null, " +  COLUMN_NAME_LATITUDE + " text not null, " + COLUMN_NAME_TIMESTAMP + " text not null);";
         db.execSQL(CREATE_TABLE);
     }
 
@@ -48,7 +49,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db=this.getWritableDatabase();
         ContentValues values=new ContentValues();
         values.put(COLUMN_NAME_LONGITUDE,record.getLongitude());
-        values.put(COLUMN_NAME_LATTITUDE,record.getLattitude());
+        values.put(COLUMN_NAME_LATITUDE,record.getLattitude());
         values.put(COLUMN_NAME_TIMESTAMP,record.getTimestamp());
 
         db.insert(TABLE_NAME,null,values);
@@ -57,7 +58,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public List<DataTable> getAllrecords(){
         List<DataTable> dl=new ArrayList<DataTable>();
-        String SELECT_QUERY="SELECT * FROM "+ TABLE_NAME;
+        String SELECT_QUERY="SELECT * FROM "+ TABLE_NAME + " order by " + COLUMN_NAME_TIMESTAMP + " desc";
         SQLiteDatabase db=this.getWritableDatabase();
         Cursor cursor = db.rawQuery(SELECT_QUERY,null);
 
@@ -66,6 +67,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                 DataTable temp=new DataTable();
                 temp.setLongitude(cursor.getDouble(0));
                 temp.setLattitude(cursor.getDouble(1));
+                temp.setTimestamp(cursor.getLong(2));
                 dl.add(temp);
             }while (cursor.moveToNext());
         }
@@ -86,6 +88,31 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         }
         db.close();
         return data;
+    }
+
+    public List<DataTable> getTodayRecord() {
+        List<DataTable> dataList=new ArrayList<DataTable>();
+        SQLiteDatabase db=this.getReadableDatabase();
+        Calendar cal = Calendar.getInstance();
+        int year  = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int date  = cal.get(Calendar.DATE);
+        cal.clear();
+        cal.set(year, month, date);
+        long midnight = cal.getTimeInMillis();
+        String SELECT_QUERY="SELECT * FROM "+ TABLE_NAME + " where timestamp > "+ midnight +" order by " + COLUMN_NAME_TIMESTAMP + " desc";
+        Cursor cursor = db.rawQuery(SELECT_QUERY,null);
+        if(cursor.moveToFirst()) {
+            do {
+                DataTable data = new DataTable();
+                data.setLongitude(cursor.getDouble(0));
+                data.setLattitude(cursor.getDouble(1));
+                data.setTimestamp(cursor.getLong(2));
+                dataList.add(data);
+            }while (cursor.moveToNext());
+        }
+        db.close();
+        return dataList;
     }
 
     /*public DataTable getrecord(int id){

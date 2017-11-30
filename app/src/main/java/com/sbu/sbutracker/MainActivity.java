@@ -9,6 +9,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,6 +29,9 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
     protected void onDestroy() {
@@ -44,26 +50,12 @@ public class MainActivity extends AppCompatActivity
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
             } else {
-
-                // No explanation needed, we can request the permission.
-
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         1);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
         }
 
@@ -84,8 +76,17 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        //displaying the latest gps on the app
+        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        FeedReaderDbHelper dbHelper=new FeedReaderDbHelper(getApplicationContext());
+        ListViewAdaptor listViewAdaptor = new ListViewAdaptor();
+        final ActivitySegment activitySegment = new ActivitySegment(mRecyclerView, dbHelper, listViewAdaptor);
+        activitySegment.refresh();
         Thread t = new Thread() {
 
             @Override
@@ -94,18 +95,19 @@ public class MainActivity extends AppCompatActivity
                     int i = 500; //update 500 times
                     while (!isInterrupted() && i>0) {
                         i++;
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                final TextView helloTextView = findViewById(R.id.text_view_id);
-                                FeedReaderDbHelper obj=new FeedReaderDbHelper(getApplicationContext());
-                                DataTable location =  obj.getLatestRecord();
-                                if(location != null) {
-                                    Date date =  new Date(location.getTimestamp());
-                                    String data = "Time: " + date.toString() + "Longitude: " + location.getLongitude() + "Latitude: " + location.getLattitude();
-                                    helloTextView.setText(data);
-                                }
+                                activitySegment.refresh();
+//                                final TextView helloTextView = findViewById(R.id.info_text);
+//                                FeedReaderDbHelper obj=new FeedReaderDbHelper(getApplicationContext());
+//                                DataTable location =  obj.getLatestRecord();
+//                                if(location != null) {
+//                                    Date date =  new Date(location.getTimestamp());
+//                                    String data = "Time: " + date.toString() + "Longitude: " + location.getLongitude() + "Latitude: " + location.getLattitude();
+//                                    helloTextView.setText(data);
+//                                }
                             }
                         });
                     }

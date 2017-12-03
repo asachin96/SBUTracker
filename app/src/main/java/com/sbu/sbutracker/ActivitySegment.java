@@ -4,9 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map.Entry;
 
 /**
  * Created by Sachin on 23-Nov-17.
@@ -38,12 +36,15 @@ class ActivitySegment {
         return dist;
     }
 
-    public void refresh() {
-//        List<DataTable> locationList = dbHelper.getTodayRecord();
-        List<DataTable> locationList = dbHelper.getAllrecords();
+    public void refresh(Boolean isPastSevenData) {
+        List<DataTable> locationList;
+        if(!isPastSevenData)
+            locationList = dbHelper.getTodayRecord();
+        else
+            locationList = dbHelper.getSevenDaysRecords();
         if (lastSize == locationList.size()) {
             //no update don't refresh
-//            Log.d("refresh", "no update");
+            Log.d("refresh", "no update");
             return;
         }
         if (locationList.size() == 0) {
@@ -64,8 +65,19 @@ class ActivitySegment {
                 DataTable firstEntry = locationList.get(i - 1);
                 DataTable lastEntry = locationList.get(anchor);
                 double distance = 0;
+                ArrayList<Double> longitudeList = new ArrayList<>();
+                ArrayList<Double> latitudeList = new ArrayList<>();
+                double peakPace = 0;
                 for (int j = anchor + 1; j <= i - 1; j++) {
-                    distance += distFrom(locationList.get(j - 1).getLattitude(), locationList.get(j - 1).getLongitude(), locationList.get(j).getLattitude(), locationList.get(j).getLongitude());
+                    double tempDist = distFrom(locationList.get(j - 1).getLattitude(), locationList.get(j - 1).getLongitude(), locationList.get(j).getLattitude(), locationList.get(j).getLongitude());
+                    double tempTime = (locationList.get(j - 1).getTimestamp() - locationList.get(j).getTimestamp())/1000;
+                    double tempPace = tempDist*3.6/tempTime;
+                    distance += tempDist;
+                    if(tempPace<80) {
+                        peakPace = Math.max(peakPace, tempPace);
+                        longitudeList.add(locationList.get(j - 1).getLattitude());
+                        latitudeList.add(locationList.get(j - 1).getLongitude());
+                    }
                 }
                 double time = (lastEntry.getTimestamp() - firstEntry.getTimestamp()) / 1000;
                 if (distance < 100 || time < 60) {
@@ -74,25 +86,23 @@ class ActivitySegment {
                 }
                 double pace = distance * 3.6 / time;
                 int activityType;
-                if (pace < 5) activityType = 1;
-                else if (pace < 20) activityType = 2;
-                else activityType = 3;
-//                    List<Entry<double,double> gpsCoordinatesList = new ArrayList<>();
-                Log.d("refresh", "distance" + distance + "time" + time);
+                if (peakPace < 10) activityType = 1; //walking
+                else if ( peakPace < 25) activityType = 2; //running
+                else activityType = 3; //driving
+//                Log.d("refresh", "peak pace" + peakPace +" "+ distance);
                 ActivityClass activityClass = new ActivityClass();
                 activityClass.setActivityType(activityType);
                 activityClass.setActivityStartTime(firstEntry.getTimestamp());
                 activityClass.setActivityDistance(distance / 1000);
                 activityClass.setActivityPace(pace);
                 activityClass.setActivityEndTime(lastEntry.getTimestamp());
+                activityClass.setLatitudeList(longitudeList);
+                activityClass.setLongitudeList(latitudeList);
+                activityClass.setActivityPeakPace(peakPace);
                 listViewAdaptor.add(activityClass);
                 anchor = i;
             }
         }
-//        }else {
-//            //person is static, show the past activity
-////        Log.d("refresh", "static");
-//        }
         recyclerView.setAdapter(listViewAdaptor);
     }
 }

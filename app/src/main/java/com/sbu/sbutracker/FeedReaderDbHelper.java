@@ -75,6 +75,40 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
         return dl;
     }
 
+    public List<DataTable> getSevenDaysRecords(){
+        List<DataTable> dl=new ArrayList<DataTable>();
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -7);
+        int year  = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int date  = cal.get(Calendar.DATE);
+        cal.clear();
+        cal.set(year, month, date-7);
+        long t1 = cal.getTimeInMillis();
+        cal = Calendar.getInstance();
+        year  = cal.get(Calendar.YEAR);
+        month = cal.get(Calendar.MONTH);
+        date  = cal.get(Calendar.DATE);
+        cal.clear();
+        cal.set(year, month, date);
+        long midnight = cal.getTimeInMillis();
+        String SELECT_QUERY="SELECT * FROM "+ TABLE_NAME + " where timestamp > "+ t1 +" and timestamp < "+ midnight + " order by " + COLUMN_NAME_TIMESTAMP + " desc";
+        SQLiteDatabase db=this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(SELECT_QUERY,null);
+
+        if(cursor.moveToFirst()){
+            do{
+                DataTable temp=new DataTable();
+                temp.setLongitude(cursor.getDouble(0));
+                temp.setLattitude(cursor.getDouble(1));
+                temp.setTimestamp(cursor.getLong(2));
+                dl.add(temp);
+            }while (cursor.moveToNext());
+        }
+        db.close();
+        return dl;
+    }
+
     public DataTable getLatestRecord(){
         SQLiteDatabase db=this.getReadableDatabase();
         String SELECT_QUERY="SELECT * FROM "+ TABLE_NAME + " order by " + COLUMN_NAME_TIMESTAMP + " desc";

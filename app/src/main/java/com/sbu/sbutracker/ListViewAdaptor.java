@@ -29,15 +29,14 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.ViewHo
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView activityType, activityStartTime, activityDuration, activityDistance, activityPace;
+        public TextView activityType, activityStartTime, activityDuration, activityDistance, activityPace, activityPeakPace;
         public ImageView activityThumbnail;
         public ActivityClass activityClass;
         public ViewHolder(final View v) {
             super(v);
-            v.findViewById(R.id.activityThumbnail).setOnClickListener(new View.OnClickListener() {
+            v.findViewById(R.id.card_view).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d("jbj", "onClick: ");
                     Intent intent = new Intent(v.getContext(), ActivitySegmentMoreInfo.class);
                     intent.putExtra("parcel_data", activityClass);
                     v.getContext().startActivity(intent);
@@ -49,6 +48,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.ViewHo
             activityDuration = v.findViewById(R.id.activityDuration);
             activityDistance = v.findViewById(R.id.activityDistance);
             activityPace = v.findViewById(R.id.activityPace);
+            activityPeakPace = v.findViewById(R.id.activityPeakPace);
         }
     }
 
@@ -87,8 +87,10 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.ViewHo
         holder.activityDuration.setText("Duration: "+ duration + " mins");
         double distance = (double)Math.round(activity.getActivityDistance()*100)/100;
         holder.activityDistance.setText("Distance: "+ distance + " km");
-        double pace = Math.round(activity.getActivityPace()*100)/100;
-        holder.activityPace.setText("Pace: "+ pace + "kmph");
+        double pace = (double)Math.round(activity.getActivityPace()*100)/100;
+        holder.activityPace.setText("Pace: "+ pace + " kmph");
+        double peak = (double) Math.round(activity.getActivityPeakPace()*100)/100;
+        holder.activityPeakPace.setText("Peak: "+ peak + " kmph");
         int thumbnail = 0;
         String activityType = "";
         switch(activity.getActivityType()){

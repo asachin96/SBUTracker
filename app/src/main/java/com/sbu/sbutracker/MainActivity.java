@@ -32,7 +32,9 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-
+    private Thread thread;
+    ActivitySegment activitySegment;
+    Boolean isPastSevenData = false;
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         Intent serviceIntent = new Intent(this, GPSService.class);
         startService(serviceIntent);
+
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -58,15 +61,6 @@ public class MainActivity extends AppCompatActivity
                         1);
             }
         }
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -83,31 +77,22 @@ public class MainActivity extends AppCompatActivity
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
-        FeedReaderDbHelper dbHelper=new FeedReaderDbHelper(getApplicationContext());
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
         ListViewAdaptor listViewAdaptor = new ListViewAdaptor();
-        final ActivitySegment activitySegment = new ActivitySegment(mRecyclerView, dbHelper, listViewAdaptor);
-        activitySegment.refresh();
-        Thread t = new Thread() {
-
+        activitySegment = new ActivitySegment(mRecyclerView, dbHelper, listViewAdaptor);
+        Intent intent = getIntent();
+        activitySegment.refresh(false);
+        thread = new Thread() {
             @Override
             public void run() {
                 try {
-                    int i = 500; //update 500 times
-                    while (!isInterrupted() && i>0) {
-                        i++;
-                        Thread.sleep(10000);
+                    while (!isInterrupted()) {
+                        Thread.sleep(15000);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                activitySegment.refresh();
-//                                final TextView helloTextView = findViewById(R.id.info_text);
-//                                FeedReaderDbHelper obj=new FeedReaderDbHelper(getApplicationContext());
-//                                DataTable location =  obj.getLatestRecord();
-//                                if(location != null) {
-//                                    Date date =  new Date(location.getTimestamp());
-//                                    String data = "Time: " + date.toString() + "Longitude: " + location.getLongitude() + "Latitude: " + location.getLattitude();
-//                                    helloTextView.setText(data);
-//                                }
+                                if(!isPastSevenData)
+                                    activitySegment.refresh(false);
                             }
                         });
                     }
@@ -116,11 +101,12 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
-        t.start();
+        thread.start();
     }
 
     @Override
     public void onBackPressed() {
+        isPastSevenData = false;
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -160,7 +146,13 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.notification) {
             // Handle the camera action
         } else if (id == R.id.pastActivity) {
-
+            isPastSevenData = true;
+            ((TextView)findViewById(R.id.activityHeading)).setText("Past Activities");
+            activitySegment.refresh(isPastSevenData);
+        }else if (id == R.id.todaysActivity) {
+            isPastSevenData = false;
+            ((TextView)findViewById(R.id.activityHeading)).setText("Today's Activities");
+            activitySegment.refresh(isPastSevenData);
         } else if (id == R.id.mySchedule) {
 
         }

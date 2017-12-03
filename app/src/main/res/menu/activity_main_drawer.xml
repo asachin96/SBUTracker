@@ -5,16 +5,20 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/todaysActivity"
+            android:icon="@android:drawable/ic_menu_mylocation"
+            android:title="Todays Activity" />
+        <item
             android:id="@+id/pastActivity"
-            android:icon="@android:drawable/btn_radio"
+            android:icon="@android:drawable/ic_menu_mylocation"
             android:title="Past Activity" />
         <item
             android:id="@+id/mySchedule"
-            android:icon="@android:drawable/btn_radio"
+            android:icon="@android:drawable/ic_menu_mylocation"
             android:title="My Schedule" />
         <item
             android:id="@+id/notification"
-            android:icon="@android:drawable/btn_radio"
+            android:icon="@android:drawable/ic_menu_mylocation"
             android:title="Notification" />
     </group>
 

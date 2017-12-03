@@ -3,6 +3,8 @@ package com.sbu.sbutracker;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+
 /**
  * Created by Sachin on 23-Nov-17.
  */
@@ -13,6 +15,9 @@ class ActivityClass implements Parcelable {
     private long activityEndTime;
     private double activityDistance;
     private double activityPace;
+    private ArrayList<Double> longitudeList;
+    private ArrayList<Double> latitudeList;
+    private double activityPeakPace;
 
     protected ActivityClass(Parcel in) {
         activityType = in.readInt();
@@ -20,6 +25,8 @@ class ActivityClass implements Parcelable {
         activityEndTime = in.readLong();
         activityDistance = in.readDouble();
         activityPace = in.readDouble();
+        longitudeList = in.readArrayList(Double.class.getClassLoader());
+        latitudeList = in.readArrayList(Double.class.getClassLoader());
     }
 
     public static final Creator<ActivityClass> CREATOR = new Creator<ActivityClass>() {
@@ -90,5 +97,31 @@ class ActivityClass implements Parcelable {
         parcel.writeLong(activityEndTime);
         parcel.writeDouble(activityDistance);
         parcel.writeDouble(activityPace);
+        parcel.writeList(longitudeList);
+        parcel.writeList(latitudeList);
+    }
+
+    public ArrayList<Double> getLongitudeList() {
+        return longitudeList;
+    }
+
+    public void setLongitudeList(ArrayList<Double> longitudeList) {
+        this.longitudeList = longitudeList;
+    }
+
+    public ArrayList<Double> getLatitudeList() {
+        return latitudeList;
+    }
+
+    public void setLatitudeList(ArrayList<Double> latitudeList) {
+        this.latitudeList = latitudeList;
+    }
+
+    public double getActivityPeakPace() {
+        return activityPeakPace;
+    }
+
+    public void setActivityPeakPace(double activityPeakPace) {
+        this.activityPeakPace = activityPeakPace;
     }
 }

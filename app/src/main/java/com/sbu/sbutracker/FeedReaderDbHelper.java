@@ -17,7 +17,7 @@ import java.util.List;
 
 public class FeedReaderDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
     public static final String DATABASE_NAME = "GPS.db";
 
     //
@@ -25,6 +25,14 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public static final String COLUMN_NAME_LONGITUDE = "longitude";
     public static final String COLUMN_NAME_LATITUDE = "latitude";
     public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
+    //
+
+    //
+    public static final String NOTIFICATION_TABLE_NAME = "NOTIFICATION_DATA";
+    public static final String COLUMN_NAME_HEADING = "heading";
+    public static final String COLUMN_NAME_TEXT= "text";
+    public static final String COLUMN_NAME_TIME = "time";
+    public static final String COLUMN_NAME_SEEN = "seen";
     //
 
     public FeedReaderDbHelper(Context context){
@@ -36,6 +44,10 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db){
         String CREATE_TABLE="CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ( " + COLUMN_NAME_LONGITUDE +
                 " text not null, " +  COLUMN_NAME_LATITUDE + " text not null, " + COLUMN_NAME_TIMESTAMP + " text not null);";
+        db.execSQL(CREATE_TABLE);
+        Log.d("test", "onCreate: ");
+        CREATE_TABLE="CREATE TABLE IF NOT EXISTS " + NOTIFICATION_TABLE_NAME + " ( " + COLUMN_NAME_HEADING +
+                " text not null, " +  COLUMN_NAME_TEXT + " text not null, " +  COLUMN_NAME_SEEN + " text not null, " + COLUMN_NAME_TIME + " text not null);";
         db.execSQL(CREATE_TABLE);
     }
 
@@ -54,6 +66,74 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
         db.insert(TABLE_NAME,null,values);
         db.close();
+    }
+
+    public void insertNotification(NotificationClass record){
+        SQLiteDatabase db=this.getWritableDatabase();
+        ContentValues values=new ContentValues();
+        values.put(COLUMN_NAME_HEADING,record.getNotificationHeading());
+        values.put(COLUMN_NAME_TEXT,record.getNotificationText());
+        values.put(COLUMN_NAME_TIME,record.getNotificationTime());
+        values.put(COLUMN_NAME_SEEN,record.getNotificationSeen());
+
+        db.insert(NOTIFICATION_TABLE_NAME,null,values);
+        db.close();
+    }
+
+    public void setNotificationAsSeen(NotificationClass record){
+        String SELECT_QUERY="Update "+ NOTIFICATION_TABLE_NAME + " set " + COLUMN_NAME_SEEN + " = true where " + COLUMN_NAME_TIME + " = " + record.getNotificationTime();
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.rawQuery(SELECT_QUERY,null);
+        db.close();
+    }
+
+    public List<NotificationClass>getAllUnseenNotification(){
+        List<NotificationClass> dl=new ArrayList<>();
+        String SELECT_QUERY="SELECT * FROM "+ NOTIFICATION_TABLE_NAME + " where seen = 'false' order by " + COLUMN_NAME_TIME + " desc";
+        SQLiteDatabase db=this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(SELECT_QUERY,null);
+//        NotificationClass temp=new NotificationClass();
+//        temp.setNotificationHeading("Static warning");
+//        temp.setNotificationText("Not moved since 10:00 AM");
+//        temp.setNotificationSeen(false);
+//        temp.setNotificationTime(1512668747);
+//        dl.add(temp);
+        if(cursor.moveToFirst()){
+            do{
+                NotificationClass temp = new NotificationClass();
+                temp.setNotificationHeading(cursor.getString(0));
+                temp.setNotificationText(cursor.getString(1));
+                temp.setNotificationSeen(cursor.getInt(2)>0);
+                temp.setNotificationTime(cursor.getLong(3));
+                dl.add(temp);
+            }while (cursor.moveToNext());
+        }
+        db.close();
+        return dl;
+    }
+
+    public List<NotificationClass>getAllNotification(){
+        List<NotificationClass> dl=new ArrayList<>();
+        String SELECT_QUERY="SELECT * FROM "+ NOTIFICATION_TABLE_NAME + " where " + COLUMN_NAME_TIME + " desc";
+        SQLiteDatabase db=this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(SELECT_QUERY,null);
+
+        if(cursor.moveToFirst()){
+            do{
+                NotificationClass temp=new NotificationClass();
+                temp.setNotificationHeading(cursor.getString(0));
+                temp.setNotificationText(cursor.getString(1));
+                temp.setNotificationSeen(cursor.getInt(2)>0);
+                temp.setNotificationTime(cursor.getLong(3));
+                dl.add(temp);
+            }while (cursor.moveToNext());
+        }
+        db.close();
+        return dl;
+    }
+
+    public Boolean isUnseenNotificationExists(){
+        return getAllUnseenNotification().size()>0;
     }
 
     public List<DataTable> getAllrecords(){

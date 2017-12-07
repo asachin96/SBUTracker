@@ -20,13 +20,13 @@
         <activity android:name=".ActivitySegmentMoreInfo"
             android:parentActivityName=".MainActivity" >
         </activity>
+        <activity android:name=".Notification"
+            android:parentActivityName=".MainActivity" >
+        </activity>
         <service android:name=".GPSService" android:process=":gps_service" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyCMyK-XeGCOISTtafavplV8w3LEU1kEg9E" />
-        <!--<meta-data-->
-            <!--android:name="com.google.android.geo.API_KEY"-->
-            <!--android:value="AIzaSyCMyK-XeGCOISTtafavplV8w3LEU1kEg9E"/>-->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

@@ -44,7 +44,7 @@ class ActivitySegment {
             locationList = dbHelper.getSevenDaysRecords();
         if (lastSize == locationList.size()) {
             //no update don't refresh
-            Log.d("refresh", "no update");
+//            Log.d("refresh", "no update");
             return;
         }
         if (locationList.size() == 0) {
@@ -63,18 +63,20 @@ class ActivitySegment {
                 cardShown = true;
                 //i-1 is the last entry in the activity
                 DataTable firstEntry = locationList.get(i - 1);
-                DataTable lastEntry = locationList.get(anchor);
+                DataTable lastEntry = locationList.get(anchor+1);
                 double distance = 0;
                 ArrayList<Double> longitudeList = new ArrayList<>();
                 ArrayList<Double> latitudeList = new ArrayList<>();
                 double peakPace = 0;
-                for (int j = anchor + 1; j <= i - 1; j++) {
+                double tt =0;
+                for (int j = anchor + 2; j <= i - 1; j++) {
                     double tempDist = distFrom(locationList.get(j - 1).getLattitude(), locationList.get(j - 1).getLongitude(), locationList.get(j).getLattitude(), locationList.get(j).getLongitude());
                     double tempTime = (locationList.get(j - 1).getTimestamp() - locationList.get(j).getTimestamp())/1000;
                     double tempPace = tempDist*3.6/tempTime;
                     distance += tempDist;
                     if(tempPace<80) {
                         peakPace = Math.max(peakPace, tempPace);
+                        tt+=tempTime;
                         longitudeList.add(locationList.get(j - 1).getLattitude());
                         latitudeList.add(locationList.get(j - 1).getLongitude());
                     }
@@ -89,7 +91,7 @@ class ActivitySegment {
                 if (peakPace < 10) activityType = 1; //walking
                 else if ( peakPace < 25) activityType = 2; //running
                 else activityType = 3; //driving
-//                Log.d("refresh", "peak pace" + peakPace +" "+ distance);
+
                 ActivityClass activityClass = new ActivityClass();
                 activityClass.setActivityType(activityType);
                 activityClass.setActivityStartTime(firstEntry.getTimestamp());

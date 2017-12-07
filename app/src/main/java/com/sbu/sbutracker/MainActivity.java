@@ -145,6 +145,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.notification) {
             // Handle the camera action
+            Intent intent = new Intent(this, Notification.class);
+            startActivity(intent);
         } else if (id == R.id.pastActivity) {
             isPastSevenData = true;
             ((TextView)findViewById(R.id.activityHeading)).setText("Past Activities");

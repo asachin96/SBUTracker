@@ -23,6 +23,12 @@
         <activity android:name=".Notification"
             android:parentActivityName=".MainActivity" >
         </activity>
+        <activity android:name=".Scheduler"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity android:name=".SchedulerMoreInfo"
+            android:parentActivityName=".Scheduler" >
+        </activity>
         <service android:name=".GPSService" android:process=":gps_service" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"

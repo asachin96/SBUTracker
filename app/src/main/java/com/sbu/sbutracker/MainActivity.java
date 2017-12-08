@@ -144,7 +144,6 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.notification) {
-            // Handle the camera action
             Intent intent = new Intent(this, Notification.class);
             startActivity(intent);
         } else if (id == R.id.pastActivity) {
@@ -156,7 +155,8 @@ public class MainActivity extends AppCompatActivity
             ((TextView)findViewById(R.id.activityHeading)).setText("Today's Activities");
             activitySegment.refresh(isPastSevenData);
         } else if (id == R.id.mySchedule) {
-
+            Intent intent = new Intent(this, Scheduler.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

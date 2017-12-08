@@ -23,7 +23,23 @@ public class LocationContext {
         locationToName.put(new SimpleEntry<>(40.908407, -73.111608),"Chapin Bus Stand");
         locationToName.put(new SimpleEntry<>(40.909092, -73.114488),"Stonybrook Hospital");
         locationToName.put(new SimpleEntry<>(40.914378, -73.124960),"SAC Bus Stop");
+        locationToName.put(new SimpleEntry<>(40.912733, -73.123562),"NCS Building");
+        locationToName.put(new SimpleEntry<>(40.912869, -73.122095),"Javtis Center");
+        locationToName.put(new SimpleEntry<>(40.921811, -73.124573),"Athletics Field");
+        locationToName.put(new SimpleEntry<>(40.866395, -73.132722),"Aldi's");
     }
+
+    public Map.Entry getCoordinates(String location){
+        Iterator it = locationToName.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            if(pair.getValue() ==location){
+                return (Map.Entry) pair.getKey();
+            }
+        }
+        return new SimpleEntry<>(40.912733, -73.123562);
+    }
+
     public String getClosestLocation(double lat, double lon){
         Iterator it = locationToName.entrySet().iterator();
         double dist = 1000;

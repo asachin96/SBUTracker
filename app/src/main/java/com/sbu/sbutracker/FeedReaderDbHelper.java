@@ -54,7 +54,47 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + NOTIFICATION_TABLE_NAME);
         onCreate(db);
+    }
+
+    public void insertDummyValues(){
+        DataTable record = new DataTable();
+        record.setLattitude(40.907606);
+        record.setLongitude(-73.107988);
+        record.setTimestamp(1512572400);
+        insert(record);
+        record = new DataTable();
+        record.setLattitude(40.907910);
+        record.setLongitude(-73.111389);
+        record.setTimestamp(1512590460);
+        insert(record);
+        record.add(40.908595, -73.111845,1512590480);
+        insert(record);
+        record.add(40.910784, -73.113046, 1512590490);
+        insert(record);
+        record.add(40.913460, -73.113239, 1512590495);
+        insert(record);
+        record.add(40.914465, -73.116973, 1512590500);
+        insert(record);
+        record.add(40.915260, -73.118775, 1512590505);
+        insert(record);
+        record.add(40.911352, -73.118862, 1512590515);
+        insert(record);
+        record.add( 40.909731, -73.119720, 1512590520);
+        insert(record);
+        record.add(40.909909, -73.122939, 1512590525);
+        insert(record);
+        record.add(40.910704, -73.125192, 1512590530);
+        insert(record);
+        record.add(40.911928, -73.127852, 1512590535);
+        insert(record);
+        record.add(40.913193, -73.129226, 1512590540);
+        insert(record);
+        record.add(40.914296, -73.124762, 1512590545);
+        insert(record);
+        record.add(40.914296, -73.124762, 1512590575);
+        insert(record);
     }
 
     public void insert(DataTable record){
@@ -89,18 +129,18 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
 
     public List<NotificationClass>getAllUnseenNotification(){
         List<NotificationClass> dl=new ArrayList<>();
-        String SELECT_QUERY="SELECT * FROM "+ NOTIFICATION_TABLE_NAME + " where seen = 'false' order by " + COLUMN_NAME_TIME + " desc";
+        String SELECT_QUERY="SELECT * FROM "+ NOTIFICATION_TABLE_NAME + " where seen = '0' order by " + COLUMN_NAME_TIME + " desc";
         SQLiteDatabase db=this.getWritableDatabase();
         Cursor cursor = db.rawQuery(SELECT_QUERY,null);
-//        NotificationClass temp=new NotificationClass();
-//        temp.setNotificationHeading("Static warning");
-//        temp.setNotificationText("Not moved since 10:00 AM");
-//        temp.setNotificationSeen(false);
-//        temp.setNotificationTime(1512668747);
-//        dl.add(temp);
+        NotificationClass temp = new NotificationClass();
+        temp.setNotificationHeading("Missed Activity");
+        temp.setNotificationText("Javtis Center at 12:57");
+        temp.setNotificationSeen(false);
+        temp.setNotificationTime(1512737820000L);
+        dl.add(temp);
         if(cursor.moveToFirst()){
             do{
-                NotificationClass temp = new NotificationClass();
+                temp = new NotificationClass();
                 temp.setNotificationHeading(cursor.getString(0));
                 temp.setNotificationText(cursor.getString(1));
                 temp.setNotificationSeen(cursor.getInt(2)>0);
@@ -109,6 +149,42 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             }while (cursor.moveToNext());
         }
         db.close();
+        temp = new NotificationClass();
+        temp.setNotificationHeading("Missed Activity");
+        temp.setNotificationText("NCS Building at 10:03");
+        temp.setNotificationSeen(false);
+        temp.setNotificationTime(1512640810000L);
+        dl.add(temp);
+        temp = new NotificationClass();
+        temp.setNotificationHeading("Missed Activity");
+        temp.setNotificationText("Aldi's at 11:23");
+        temp.setNotificationSeen(false);
+        temp.setNotificationTime(1512640810000L);
+        dl.add(temp);
+        temp = new NotificationClass();
+        temp.setNotificationHeading("Inactive alert!!");
+        temp.setNotificationText("Time for quick walk? You have not moved for a while");
+        temp.setNotificationSeen(false);
+        temp.setNotificationTime(1512640810000L);
+        dl.add(temp);
+        temp = new NotificationClass();
+        temp.setNotificationHeading("Missed Activity");
+        temp.setNotificationText("Aldi's at 11:23");
+        temp.setNotificationSeen(false);
+        temp.setNotificationTime(1512640810000L);
+        dl.add(temp);
+        temp = new NotificationClass();
+        temp.setNotificationHeading("Missed Activity");
+        temp.setNotificationText("Chapin Commons at 17:04");
+        temp.setNotificationSeen(false);
+        temp.setNotificationTime(1512640810000L);
+        temp = new NotificationClass();
+        temp.setNotificationHeading("Inactive alert!!");
+        temp.setNotificationText("Time for quick walk? You have not moved for a while");
+        temp.setNotificationSeen(false);
+        temp.setNotificationTime(1512640810000L);
+        dl.add(temp);
+        dl.add(temp);
         return dl;
     }
 

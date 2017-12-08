@@ -33,6 +33,12 @@ public class DataTable {
     public void setTimestamp(long timestamp) {
         Timestamp = timestamp;
     }
+
+    public void add(double v, double v1, long i) {
+        Longitude =v;
+        Lattitude = v1;
+        Timestamp = i;
+    }
     //getter : value title/subtitle
     //setter  : set the values
 

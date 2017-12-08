@@ -3,7 +3,10 @@ package com.sbu.sbutracker;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,7 +17,7 @@ class ActivitySegment {
     private RecyclerView recyclerView;
     private FeedReaderDbHelper dbHelper;
     ListViewAdaptor listViewAdaptor;
-    private long staticThreshold = 60 * 1000; //min no of seconds after which we tell person is static
+    private long staticThreshold = 120 * 1000; //min no of seconds after which we tell person is static
     static int lastSize = -1;
 
     public ActivitySegment(RecyclerView mRecyclerView, FeedReaderDbHelper mdbHelper, ListViewAdaptor mAdapter) {
@@ -38,8 +41,10 @@ class ActivitySegment {
 
     public void refresh(Boolean isPastSevenData) {
         List<DataTable> locationList;
-        if(!isPastSevenData)
+        if(!isPastSevenData) {
             locationList = dbHelper.getTodayRecord();
+            checkForImmobility(locationList);
+        }
         else
             locationList = dbHelper.getSevenDaysRecords();
         if (lastSize == locationList.size()) {
@@ -50,7 +55,6 @@ class ActivitySegment {
         if (locationList.size() == 0) {
             //no records
             //TODO display default welcome message
-            Log.d("bad", "empty");
             return;
         }
         Log.d("refresh", "size" + locationList.size());
@@ -82,20 +86,21 @@ class ActivitySegment {
                     }
                 }
                 double time = (lastEntry.getTimestamp() - firstEntry.getTimestamp()) / 1000;
-                if (distance < 100 || time < 60) {
+                if (distance < 100) {
                     anchor = i - 1;
                     continue;
                 }
+                distance+=300;
                 double pace = distance * 3.6 / time;
                 int activityType;
-                if (peakPace < 10) activityType = 1; //walking
-                else if ( peakPace < 25) activityType = 2; //running
+                if (distance < 200) activityType = 1; //walking
+                else if ( distance < 500) activityType = 2; //running
                 else activityType = 3; //driving
 
                 ActivityClass activityClass = new ActivityClass();
                 activityClass.setActivityType(activityType);
                 activityClass.setActivityStartTime(firstEntry.getTimestamp());
-                activityClass.setActivityDistance(distance / 1000);
+                activityClass.setActivityDistance(distance/ 1000);
                 activityClass.setActivityPace(pace);
                 activityClass.setActivityEndTime(lastEntry.getTimestamp());
                 activityClass.setLatitudeList(longitudeList);
@@ -106,5 +111,30 @@ class ActivitySegment {
             }
         }
         recyclerView.setAdapter(listViewAdaptor);
+    }
+
+    private void checkForImmobility(List<DataTable> locationList) {
+        Calendar current  = Calendar.getInstance();
+        if(current.get(Calendar.MINUTE)==01&& current.get(Calendar.SECOND)<10){
+            if(current.get(Calendar.HOUR_OF_DAY)>9 && current.get(Calendar.HOUR_OF_DAY)<18){
+                if(locationList.size()==0){
+                    NotificationClass notification = new NotificationClass();
+                    notification.setNotificationHeading("Inactive alert!!");
+                    notification.setNotificationText("Time for quick walk? You have not moved for a while");
+                    notification.setNotificationSeen(false);
+                    notification.setNotificationTime(current.getTimeInMillis());
+                    dbHelper.insertNotification(notification);
+                }else{
+                    if((System.currentTimeMillis()-locationList.get(locationList.size()-1).getTimestamp())/1000<60*60){
+                        NotificationClass notification = new NotificationClass();
+                        notification.setNotificationHeading("Inactive alert!!");
+                        notification.setNotificationText("Time for quick walk? You have not moved for a while");
+                        notification.setNotificationSeen(false);
+                        notification.setNotificationTime(current.getTimeInMillis());
+                        dbHelper.insertNotification(notification);
+                    }
+                }
+            }
+        }
     }
 }
